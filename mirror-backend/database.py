@@ -27,6 +27,14 @@ users = sqlalchemy.Table(
     sqlalchemy.Column("hashed_password", sqlalchemy.String)
 )
 
+prompts = sqlalchemy.Table(
+    "prompts",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("prompt_text", sqlalchemy.String),
+    sqlalchemy.Column("date_published", sqlalchemy.Date)
+)
+
 engine = sqlalchemy.create_engine(
     DATABASE_URL
 )
