@@ -35,6 +35,14 @@ prompts = sqlalchemy.Table(
     sqlalchemy.Column("date_published", sqlalchemy.Date)
 )
 
+reflections = sqlalchemy.Table(
+    "reflections",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("reflection_text", sqlalchemy.String),
+    sqlalchemy.Column("date_submitted", sqlalchemy.DateTime)
+)
+
 engine = sqlalchemy.create_engine(
     DATABASE_URL
 )
