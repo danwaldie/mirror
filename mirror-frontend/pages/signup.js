@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
-export default function Login() {
+export default function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
@@ -16,20 +16,16 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('email', email);
-    formData.append('password', password);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/token`, {
+    const res1 = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/`, {
       method: 'POST',
-      body: formData
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password
+      })
     });
-    if (res.status == 200) {
-      const json = await res.json();
-      localStorage.setItem('token', json.access_token);
-      router.push("admin");
-    } else {
-      alert('Login failed.')
-    }
   }
 
   return (
@@ -42,7 +38,7 @@ export default function Login() {
               src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg"
               alt="Workflow"
             />
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign up for Mirror</h2>
           </div>
           <form className="mt-8 space-y-6" action="#" method="POST" onSubmit={handleSubmit}>
             <input type="hidden" name="remember" defaultValue="true" />
@@ -81,26 +77,6 @@ export default function Login() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                  Remember me
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                  Forgot your password?
-                </a>
-              </div>
-            </div>
-
             <div>
               <button
                 type="submit"
@@ -109,7 +85,7 @@ export default function Login() {
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
 
                 </span>
-                Sign in
+                Sign up
               </button>
             </div>
           </form>

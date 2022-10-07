@@ -26,8 +26,8 @@ class TokenData(BaseModel):
 
 
 class User(BaseModel):
-    username: str
-    email: Optional[str] = None
+    username: Optional[str] = None
+    email: str
     full_name: Optional[str] = None
     disabled: Optional[bool] = None
 
@@ -55,14 +55,14 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(username: str):
-    query = users.select().where(users.c.username == username)
+async def get_user(email: str):
+    query = users.select().where(users.c.email == email)
     user = await database.fetch_one(query)
-    return UserInDB(username=user["username"], hashed_password=user["hashed_password"])
+    return UserInDB(email=user["email"], username=user["username"], hashed_password=user["hashed_password"])
 
 
-async def authenticate_user(username: str, password: str):
-    user = await get_user(username)
+async def authenticate_user(email: str, password: str):
+    user = await get_user(email)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -89,13 +89,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(email=email)
     except JWTError:
         raise credentials_exception
-    user = await get_user(username=token_data.username)
+    user = await get_user(email=token_data.email)
     if user is None:
         raise credentials_exception
     return user
@@ -109,16 +109,16 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = await authenticate_user(form_data.username, form_data.password)
+    user = await authenticate_user(form_data.email, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -137,7 +137,7 @@ async def read_own_items(current_user: User = Depends(get_current_active_user)):
 async def sign_up(user: UserIn):
     hashed_password = get_password_hash(user.password)
     query = users.insert().values(
-        username=user.username, hashed_password=hashed_password
+        email=user.email, hashed_password=hashed_password
     )
     last_record_id = await database.execute(query)
-    return {"username": user.username, "id": last_record_id}
+    return {"email": user.email, "id": last_record_id}
