@@ -16,7 +16,7 @@ export default function Signup() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const res1 = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -26,6 +26,12 @@ export default function Signup() {
         password: password
       })
     });
+    if (res.status == 200) {
+      router.push("login");
+    } else {
+      alert('Signup failed.')
+    }
+    
   }
 
   return (
