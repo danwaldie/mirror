@@ -1,13 +1,14 @@
 from database import database
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import users, notes, prompts
+from routers import users, notes, prompts, reflections
 
 
 app = FastAPI()
 app.include_router(users.router)
 app.include_router(notes.router)
 app.include_router(prompts.router)
+app.include_router(reflections.router)
 
 
 origins = [
