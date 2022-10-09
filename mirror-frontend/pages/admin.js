@@ -28,7 +28,7 @@ export default function Admin() {
       <h1>Admin</h1>
 
       {user && (
-        <p>{user.username}</p>
+        <p>{user.username} {user.email}</p>
       )}
     </div>
   )

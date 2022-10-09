@@ -26,8 +26,8 @@ class TokenData(BaseModel):
 
 
 class User(BaseModel):
-    username: str
-    email: Optional[str] = None
+    username: Optional[str] = None
+    email: str
     full_name: Optional[str] = None
     disabled: Optional[bool] = None
 
@@ -56,9 +56,15 @@ def get_password_hash(password):
 
 
 async def get_user(username: str):
-    query = users.select().where(users.c.username == username)
+    query = users.select().where(users.c.email == username)
     user = await database.fetch_one(query)
-    return UserInDB(username=user["username"], hashed_password=user["hashed_password"])
+    return UserInDB(email=user["email"], username=user["email"], hashed_password=user["hashed_password"])
+
+
+async def get_user_by_email(email: str):
+    query = users.select().where(users.c.email == email)
+    user = await database.fetch_one(query)
+    return user
 
 
 async def authenticate_user(username: str, password: str):
@@ -113,7 +119,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
+            detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -133,11 +139,16 @@ async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id": "Foo", "owner": current_user.username}]
 
 
+@router.get("/users/{email}/", response_model=User)
+async def read_user_by_email(user: User = Depends(get_user_by_email)):
+    return user
+
+
 @router.post("/users/", response_model=User)
 async def sign_up(user: UserIn):
     hashed_password = get_password_hash(user.password)
     query = users.insert().values(
-        username=user.username, hashed_password=hashed_password
+        email=user.email, hashed_password=hashed_password
     )
     last_record_id = await database.execute(query)
-    return {"username": user.username, "id": last_record_id}
+    return {"email": user.email, "id": last_record_id}
