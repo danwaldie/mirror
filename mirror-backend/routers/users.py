@@ -56,10 +56,15 @@ def get_password_hash(password):
 
 
 async def get_user(username: str):
-    query = users.select().where(users.c.username == username)
+    query = users.select().where(users.c.email == username)
     user = await database.fetch_one(query)
-    print(user)
-    return UserInDB(email=user["email"], username=user["username"], hashed_password=user["hashed_password"])
+    return UserInDB(email=user["email"], username=user["email"], hashed_password=user["hashed_password"])
+
+
+async def get_user_by_email(email: str):
+    query = users.select().where(users.c.email == email)
+    user = await database.fetch_one(query)
+    return user
 
 
 async def authenticate_user(username: str, password: str):
@@ -132,6 +137,11 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @router.get("/users/me/items/")
 async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id": "Foo", "owner": current_user.username}]
+
+
+@router.get("/users/{email}/", response_model=User)
+async def read_user_by_email(user: User = Depends(get_user_by_email)):
+    return user
 
 
 @router.post("/users/", response_model=User)
