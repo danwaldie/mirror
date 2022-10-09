@@ -26,7 +26,7 @@ export default function Login() {
     if (res.status == 200) {
       const json = await res.json();
       localStorage.setItem('token', json.access_token);
-      router.push("admin");
+      router.push("reflection");
     } else {
       alert('Login failed.')
     }
