@@ -49,29 +49,57 @@ function classNames(...classes) {
 
 function ReflectionEntry() {
   const [selected, setSelected] = useState(moods[5])
+  const [reflection, setReflection] = useState('');
+
+  function handleReflectionChange(e) {
+    setReflection(e.target.value);
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const current_date = new Date()
+    console.log(JSON.stringify({
+        user_id: 1,
+        prompt_id: 2,
+        reflection_text: reflection,
+        date_submitted: current_date.toISOString()
+    }));
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reflections/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        user_id: 1,
+        prompt_id: 2,
+        reflection_text: reflection,
+        date_submitted: current_date.toISOString()
+      })
+    });
+    if (res.status == 200) {
+      
+    } else {
+      alert('Reflection failed.')
+    } 
+  }
 
   return (
+    <div className="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
     <div className="flex items-start space-x-4">
-      <div className="flex-shrink-0">
-        <img
-          className="inline-block h-10 w-10 rounded-full"
-          src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-          alt=""
-        />
-      </div>
       <div className="min-w-0 flex-1">
-        <form action="#">
+        <form action="#" method="POST" onSubmit={handleSubmit}>
           <div className="border-b border-gray-200 focus-within:border-indigo-600">
-            <label htmlFor="comment" className="sr-only">
-              Add your comment
+            <label htmlFor="reflection" className="sr-only">
+              Add your reflection
             </label>
             <textarea
               rows={3}
-              name="comment"
-              id="comment"
+              name="reflection"
+              id="reflection"
               className="block w-full resize-none border-0 border-b border-transparent p-0 pb-2 focus:border-indigo-600 focus:ring-0 sm:text-sm"
-              placeholder="Add your comment..."
+              placeholder="Write your reflection..."
               defaultValue={''}
+              onChange={handleReflectionChange}
             />
           </div>
           <div className="flex justify-between pt-2">
@@ -159,6 +187,7 @@ function ReflectionEntry() {
           </div>
         </form>
       </div>
+    </div>
     </div>
   )
 }
