@@ -27,7 +27,7 @@ class TokenData(BaseModel):
 
 class User(BaseModel):
     username: Optional[str] = None
-    email: Optional[str] = None
+    email: str
     full_name: Optional[str] = None
     disabled: Optional[bool] = None
 
