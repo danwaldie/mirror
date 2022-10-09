@@ -31,6 +31,12 @@ async def read_reflections():
     return await database.fetch_all(query)
 
 
+@router.get("/reflections/{prompt_id}/{user_id}/", response_model=Reflection)
+async def read_reflection_by_prompt_and_user(prompt_id: int, user_id: int):
+    query = reflections.select().where(reflections.c.user_id == user_id, reflections.c.prompt_id == prompt_id)
+    return await database.fetch_one(query)
+
+
 @router.post("/reflections/", response_model=Reflection)
 async def create_reflection(reflection: ReflectionIn):
     print(reflection)
