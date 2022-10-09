@@ -20,8 +20,8 @@ def upgrade() -> None:
     op.create_table(
         "reflections",
         sa.Column("id", sa.Integer, primary_key=True),
-        sa.Column("user_id", sa.Integer, sa.ForeignKey("users.id"), nullable=False),
-        sa.Column("prompt_id", sa.Integer, sa.ForeignKey("prompts.id"), nullable=False),
+        sa.Column("user_id", sa.Integer, sa.ForeignKey("users.id"), nullable=False, index=True),
+        sa.Column("prompt_id", sa.Integer, sa.ForeignKey("prompts.id"), nullable=False, index=True),
         sa.Column("reflection_text", sa.String),
         sa.Column("date_submitted", sa.DateTime(timezone=True))
     )

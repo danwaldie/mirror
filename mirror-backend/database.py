@@ -40,8 +40,8 @@ reflections = sqlalchemy.Table(
     "reflections",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("user_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=False),
-    sqlalchemy.Column("prompt_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("prompts.id"), nullable=False),
+    sqlalchemy.Column("user_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=False, index=True),
+    sqlalchemy.Column("prompt_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("prompts.id"), nullable=False, index=True),
     sqlalchemy.Column("reflection_text", sqlalchemy.String),
     sqlalchemy.Column("date_submitted", sqlalchemy.DateTime(timezone=True))
 )
