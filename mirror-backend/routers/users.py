@@ -55,14 +55,20 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(email: str):
+async def get_user(username: str):
+    query = users.select().where(users.c.email == username)
+    user = await database.fetch_one(query)
+    return UserInDB(email=user["email"], username=user["email"], hashed_password=user["hashed_password"])
+
+
+async def get_user_by_email(email: str):
     query = users.select().where(users.c.email == email)
     user = await database.fetch_one(query)
-    return UserInDB(email=user["email"], username=user["username"], hashed_password=user["hashed_password"])
+    return user
 
 
-async def authenticate_user(email: str, password: str):
-    user = await get_user(email)
+async def authenticate_user(username: str, password: str):
+    user = await get_user(username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -89,13 +95,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        email: str = payload.get("sub")
-        if email is None:
+        username: str = payload.get("sub")
+        if username is None:
             raise credentials_exception
-        token_data = TokenData(email=email)
+        token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = await get_user(email=token_data.email)
+    user = await get_user(username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -109,7 +115,7 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = await authenticate_user(form_data.email, form_data.password)
+    user = await authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -118,7 +124,7 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -131,6 +137,11 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 @router.get("/users/me/items/")
 async def read_own_items(current_user: User = Depends(get_current_active_user)):
     return [{"item_id": "Foo", "owner": current_user.username}]
+
+
+@router.get("/users/{email}/", response_model=User)
+async def read_user_by_email(user: User = Depends(get_user_by_email)):
+    return user
 
 
 @router.post("/users/", response_model=User)
