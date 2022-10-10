@@ -7,6 +7,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from database import users, database
+from routers.reflections import Reflection
 
 
 # to get a string like this run:
@@ -25,18 +26,24 @@ class TokenData(BaseModel):
     username: Optional[str] = None
 
 
-class User(BaseModel):
+class UserBase(BaseModel):
     username: Optional[str] = None
     email: str
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = None
 
 
-class UserInDB(User):
+class User(UserBase):
+    id: int | None
+    reflections: list[Reflection] | None = []
+
+    class Config:
+        orm_mode = True
+
+
+class UserInDB(UserBase):
     hashed_password: str
 
 
-class UserIn(User):
+class UserIn(UserBase):
     password: str
 
 
@@ -55,20 +62,20 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(username: str):
+async def get_user_authenticate(username: str):
     query = users.select().where(users.c.email == username)
     user = await database.fetch_one(query)
     return UserInDB(email=user["email"], username=user["email"], hashed_password=user["hashed_password"])
 
 
-async def get_user_by_email(email: str):
+async def get_user(email: str):
     query = users.select().where(users.c.email == email)
     user = await database.fetch_one(query)
     return user
 
 
 async def authenticate_user(username: str, password: str):
-    user = await get_user(username)
+    user = await get_user_authenticate(username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -101,7 +108,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = await get_user(username=token_data.username)
+    user = await get_user(email=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -140,7 +147,7 @@ async def read_own_items(current_user: User = Depends(get_current_active_user)):
 
 
 @router.get("/users/{email}/", response_model=User)
-async def read_user_by_email(user: User = Depends(get_user_by_email)):
+async def read_user_by_email(user: User = Depends(get_user)):
     return user
 
 

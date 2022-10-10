@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { Fragment, useState, useEffect } from 'react';
-import { FaceSmileIcon as FaceSmileIconOutline, PaperClipIcon } from '@heroicons/react/24/outline'
+import { FaceSmileIcon as FaceSmileIconOutline, } from '@heroicons/react/24/outline'
 import { Listbox, Transition } from '@headlessui/react'
 import {
   FaceFrownIcon,
@@ -50,6 +50,21 @@ function classNames(...classes) {
 function ReflectionEntry() {
   const [selected, setSelected] = useState(moods[5])
   const [reflection, setReflection] = useState('');
+  const [user, setUser] = useState({});
+
+    useEffect(() => {
+        async function fetchUser() {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            const json = await res.json();
+            setUser(json);
+        }
+        fetchUser();
+    }, [])
 
   function handleReflectionChange(e) {
     setReflection(e.target.value);
@@ -57,27 +72,20 @@ function ReflectionEntry() {
 
   async function handleSubmit(e) {
     e.preventDefault();
-    const current_date = new Date()
-    console.log(JSON.stringify({
-        user_id: 1,
-        prompt_id: 2,
-        reflection_text: reflection,
-        date_submitted: current_date.toISOString()
-    }));
+    const current_date = new Date();
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reflections/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        user_id: 1,
-        prompt_id: 2,
+        user_id: user.id,
+        prompt_id: 5,
         reflection_text: reflection,
         date_submitted: current_date.toISOString()
       })
     });
     if (res.status == 200) {
-      
     } else {
       alert('Reflection failed.')
     } 
