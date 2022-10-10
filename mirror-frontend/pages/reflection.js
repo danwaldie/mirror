@@ -20,18 +20,7 @@ const moods = [
     { name: 'I feel nothing', value: null, icon: XMarkIcon, iconColor: 'text-gray-400', bgColor: 'bg-transparent' },
   ]
 
-function Prompt() {
-    const [prompt, setPrompt] = useState('');
-
-    useEffect(() => {
-        async function fetchPrompt() {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/prompts/today/`);
-            const json = await res.json();
-            console.log(json)
-            setPrompt(json);
-        }
-        fetchPrompt();
-    }, [])
+function Prompt({ prompt }) {
 
     return (
     <div className="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
@@ -47,7 +36,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-function ReflectionEntry() {
+function ReflectionEntry({ prompt }) {
   const [selected, setSelected] = useState(moods[5])
   const [reflection, setReflection] = useState('');
   const [user, setUser] = useState({});
@@ -80,7 +69,7 @@ function ReflectionEntry() {
       },
       body: JSON.stringify({
         user_id: user.id,
-        prompt_id: 5,
+        prompt_id: prompt.id,
         reflection_text: reflection,
         date_submitted: current_date.toISOString()
       })
@@ -202,15 +191,26 @@ function ReflectionEntry() {
 
 
 export default function Reflection() {
+    const [prompt, setPrompt] = useState('');
+
+    useEffect(() => {
+        async function fetchPrompt() {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/prompts/today/`);
+            const json = await res.json();
+            console.log(json)
+            setPrompt(json);
+        }
+        fetchPrompt();
+    }, [])
 
     return (
         <div>
             <Head>
                 <title>Mirror</title>
             </Head>
-            <Prompt />
+            <Prompt prompt={prompt} />
             <div>
-                <ReflectionEntry />
+                <ReflectionEntry prompt={prompt} />
             </div>
         </div>
     )
