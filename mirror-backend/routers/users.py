@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Optional
-
 from fastapi import Depends, APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
 from database import users, database
+from models.models import User, UserIn, UserInDB, Token, TokenData
 
 
 # to get a string like this run:
@@ -15,36 +14,13 @@ SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
-
-
-class User(BaseModel):
-    username: Optional[str] = None
-    email: str
-    full_name: Optional[str] = None
-    disabled: Optional[bool] = None
-
-
-class UserInDB(User):
-    hashed_password: str
-
-
-class UserIn(User):
-    password: str
-
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-router = APIRouter()
+router = APIRouter(
+    tags=["Users"]
+)
 
 
 def verify_password(plain_password, hashed_password):
@@ -55,20 +31,20 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-async def get_user(username: str):
+async def get_user_authenticate(username: str):
     query = users.select().where(users.c.email == username)
     user = await database.fetch_one(query)
     return UserInDB(email=user["email"], username=user["email"], hashed_password=user["hashed_password"])
 
 
-async def get_user_by_email(email: str):
+async def get_user(email: str):
     query = users.select().where(users.c.email == email)
     user = await database.fetch_one(query)
     return user
 
 
 async def authenticate_user(username: str, password: str):
-    user = await get_user(username)
+    user = await get_user_authenticate(username)
     if not user:
         return False
     if not verify_password(password, user.hashed_password):
@@ -101,7 +77,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenData(username=username)
     except JWTError:
         raise credentials_exception
-    user = await get_user(username=token_data.username)
+    user = await get_user(email=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -140,7 +116,7 @@ async def read_own_items(current_user: User = Depends(get_current_active_user)):
 
 
 @router.get("/users/{email}/", response_model=User)
-async def read_user_by_email(user: User = Depends(get_user_by_email)):
+async def read_user_by_email(user: User = Depends(get_user)):
     return user
 
 
