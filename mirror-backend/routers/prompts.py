@@ -1,34 +1,24 @@
 from datetime import date, datetime
 from time import strptime
-from typing import Optional
 from typing import List
-from fastapi import Depends, APIRouter, HTTPException, status
-from pydantic import BaseModel
+from fastapi import Depends, APIRouter
 from database import prompts, database
+from models.models import Prompt, PromptIn
 
 
-
-class PromptIn(BaseModel):
-    prompt_text: str
-    date_published: date
-
-
-class Prompt(BaseModel):
-    id: int
-    prompt_text: str
-    date_published: date | None = None
-
-    class Config:
-        orm_mode = True
+router = APIRouter(
+    tags=["Prompts"]
+)
 
 
-router = APIRouter()
+async def get_todays_prompt():
+    query = prompts.select().where(prompts.c.date_published == date.today())
+    return await database.fetch_one(query)
 
 
 @router.get("/prompts/today/", response_model=Prompt)
-async def read_todays_prompt():
-    query = prompts.select().where(prompts.c.date_published == date.today())
-    return await database.fetch_one(query)
+async def read_todays_prompt(prompt: Prompt = Depends(get_todays_prompt)):
+    return prompt
 
 @router.get("/prompts/{date_string}/", response_model=Prompt)
 async def read_prompt_by_date(date_string: str):

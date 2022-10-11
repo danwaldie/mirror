@@ -1,13 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Optional
-
 from fastapi import Depends, APIRouter, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel
 from database import users, database
-from routers.reflections import Reflection
+from models.models import User, UserIn, UserInDB, Token, TokenData
 
 
 # to get a string like this run:
@@ -16,42 +14,13 @@ SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-
-class TokenData(BaseModel):
-    username: Optional[str] = None
-
-
-class UserBase(BaseModel):
-    username: Optional[str] = None
-    email: str
-
-
-class User(UserBase):
-    id: int | None
-    reflections: list[Reflection] | None = []
-
-    class Config:
-        orm_mode = True
-
-
-class UserInDB(UserBase):
-    hashed_password: str
-
-
-class UserIn(UserBase):
-    password: str
-
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-router = APIRouter()
+router = APIRouter(
+    tags=["Users"]
+)
 
 
 def verify_password(plain_password, hashed_password):
