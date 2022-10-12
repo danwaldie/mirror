@@ -10,6 +10,7 @@ import {
   HeartIcon,
   XMarkIcon,
 } from '@heroicons/react/20/solid'
+import { useRouter } from 'next/router';
 
 const moods = [
     { name: 'Excited', value: 'excited', icon: FireIcon, iconColor: 'text-white', bgColor: 'bg-red-500' },
@@ -40,6 +41,7 @@ function ReflectionEntry({ prompt }) {
   const [selected, setSelected] = useState(moods[5])
   const [reflection, setReflection] = useState('');
   const [user, setUser] = useState({});
+  const router = useRouter();
 
     useEffect(() => {
         async function fetchUser() {
@@ -49,6 +51,9 @@ function ReflectionEntry({ prompt }) {
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 }
             });
+            if (res.status == 401) {
+                router.push("login");
+            }
             const json = await res.json();
             setUser(json);
         }
@@ -189,6 +194,9 @@ function ReflectionEntry({ prompt }) {
   )
 }
 
+function ReflectionResponse() {
+    
+}
 
 export default function Reflection() {
     const [prompt, setPrompt] = useState('');
