@@ -37,28 +37,9 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
-function ReflectionEntry({ prompt }) {
+function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
   const [selected, setSelected] = useState(moods[5])
   const [reflection, setReflection] = useState('');
-  const [user, setUser] = useState({});
-  const router = useRouter();
-
-    useEffect(() => {
-        async function fetchUser() {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('token')
-                }
-            });
-            if (res.status == 401) {
-                router.push("login");
-            }
-            const json = await res.json();
-            setUser(json);
-        }
-        fetchUser();
-    }, [])
 
   function handleReflectionChange(e) {
     setReflection(e.target.value);
@@ -67,19 +48,21 @@ function ReflectionEntry({ prompt }) {
   async function handleSubmit(e) {
     e.preventDefault();
     const current_date = new Date();
+    const body = JSON.stringify({
+        user_id: user.id,
+        prompt_id: prompt.id,
+        reflection_text: reflection,
+        date_submitted: current_date.toISOString()
+    })
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reflections/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        user_id: user.id,
-        prompt_id: prompt.id,
-        reflection_text: reflection,
-        date_submitted: current_date.toISOString()
-      })
+      body: body
     });
     if (res.status == 200) {
+        updateTodaysReflection(JSON.parse(body));
     } else {
       alert('Reflection failed.')
     } 
@@ -194,12 +177,39 @@ function ReflectionEntry({ prompt }) {
   )
 }
 
-function ReflectionResponse() {
-    
+function ReflectionResponse({ todaysReflection }) {
+    return (
+        <div className="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
+        <h3 className="text-lg font-medium leading-6 text-gray-900">Your Response</h3>
+        <p className="mt-1 text-sm text-gray-500">
+            {todaysReflection.reflection_text}
+        </p>
+    </div>
+    )
 }
 
 export default function Reflection() {
     const [prompt, setPrompt] = useState('');
+    const [user, setUser] = useState({});
+    const [todaysReflection, setTodaysReflection] = useState({});
+    const router = useRouter();
+
+    useEffect(() => {
+        async function fetchUser() {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            if (res.status == 401) {
+                router.push("login");
+            }
+            const json = await res.json();
+            setUser(json);
+        }
+        fetchUser();
+    }, [])
 
     useEffect(() => {
         async function fetchPrompt() {
@@ -211,6 +221,26 @@ export default function Reflection() {
         fetchPrompt();
     }, [])
 
+    useEffect(() => {
+        async function fetchTodaysReflection() {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reflections/today/me/`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            if (res.status == 200) {
+                const json = await res.json();
+                setTodaysReflection(json);
+            }
+        }
+        fetchTodaysReflection();
+    }, [])
+
+    function updateTodaysReflection(e) {
+        setTodaysReflection(e);
+    }
+
     return (
         <div>
             <Head>
@@ -218,7 +248,11 @@ export default function Reflection() {
             </Head>
             <Prompt prompt={prompt} />
             <div>
-                <ReflectionEntry prompt={prompt} />
+                {todaysReflection.reflection_text ? (
+                    <ReflectionResponse todaysReflection={todaysReflection} />
+                ) : (
+                    <ReflectionEntry prompt={prompt} user={user} updateTodaysReflection={updateTodaysReflection} />
+                )}
             </div>
         </div>
     )
