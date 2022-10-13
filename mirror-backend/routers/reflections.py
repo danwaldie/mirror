@@ -1,7 +1,7 @@
 import routers.users as users
 import routers.prompts as prompts
 from typing import List
-from fastapi import Depends, APIRouter
+from fastapi import Depends, APIRouter, HTTPException
 from database import reflections, database
 from models.models import Reflection, ReflectionIn
 
@@ -20,9 +20,15 @@ async def get_reflection_id(id: int):
     return await database.fetch_one(query)
 
 
-async def get_current_user_today_reflection(current_user: users.User = Depends(users.get_current_user), current_prompt: prompts.Prompt = Depends(prompts.get_todays_prompt)):
+async def get_current_user_today_reflection(
+    current_user: users.User = Depends(users.get_current_user), 
+    current_prompt: prompts.Prompt = Depends(prompts.get_todays_prompt)
+    ):
     query = reflections.select().where(reflections.c.user_id == current_user.id, reflections.c.prompt_id == current_prompt.id)
-    return await database.fetch_one(query)
+    reflection = await database.fetch_one(query)
+    if not reflection:
+        raise HTTPException(status_code=404, detail="Reflection not found")
+    return reflection
 
 
 @router.get("/reflections/", response_model=List[Reflection])
