@@ -21,6 +21,21 @@ const moods = [
     { name: 'I feel nothing', value: null, icon: XMarkIcon, iconColor: 'text-gray-400', bgColor: 'bg-transparent' },
   ]
 
+function classNames(...classes) {
+return classes.filter(Boolean).join(' ')
+}
+
+async function submitReflection(body) {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reflections/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: body
+        });
+    return res
+}
+
 function Prompt({ prompt }) {
 
     return (
@@ -33,39 +48,62 @@ function Prompt({ prompt }) {
     )
 }
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
-
 function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
   const [selected, setSelected] = useState(moods[5])
   const [reflection, setReflection] = useState('');
+  const router = useRouter();
 
   function handleReflectionChange(e) {
     setReflection(e.target.value);
   }
 
+  useEffect(() => {
+    async function delayedSubmission() {
+        if (user.id && sessionStorage.getItem('prompt_id') == prompt.id) {
+            console.log('Running delayed submission if statement.')
+            const body = JSON.stringify({
+                user_id: user.id,
+                prompt_id: prompt.id,
+                reflection_text: sessionStorage.getItem('reflection_text'),
+                date_submitted: sessionStorage.getItem('date_submitted')
+            })
+            const res = await submitReflection(body);
+            if (res.status == 200) {
+                updateTodaysReflection(JSON.parse(body));
+                sessionStorage.clear();
+            } else {
+            alert('Reflection failed.')
+            } 
+        }
+    }
+    delayedSubmission();
+    console.log('Ran delayed Submission');
+    console.log(user);
+    console.log(prompt);
+  }, [prompt, user])
+
   async function handleSubmit(e) {
     e.preventDefault();
     const current_date = new Date();
-    const body = JSON.stringify({
-        user_id: user.id,
-        prompt_id: prompt.id,
-        reflection_text: reflection,
-        date_submitted: current_date.toISOString()
-    })
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reflections/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: body
-    });
-    if (res.status == 200) {
-        updateTodaysReflection(JSON.parse(body));
+    if (user.id) {
+        const body = JSON.stringify({
+            user_id: user.id,
+            prompt_id: prompt.id,
+            reflection_text: reflection,
+            date_submitted: current_date.toISOString()
+        });
+        const res = await submitReflection(body);
+        if (res.status == 200) {
+            updateTodaysReflection(JSON.parse(body));
+        } else {
+        alert('Reflection failed.')
+        } 
     } else {
-      alert('Reflection failed.')
-    } 
+        sessionStorage.setItem('prompt_id', prompt.id);
+        sessionStorage.setItem('reflection_text', reflection);
+        sessionStorage.setItem('date_submitted', current_date.toISOString());
+        router.push('login');
+    }
   }
 
   return (
@@ -192,7 +230,6 @@ export default function Reflection() {
     const [prompt, setPrompt] = useState('');
     const [user, setUser] = useState({});
     const [todaysReflection, setTodaysReflection] = useState({});
-    const router = useRouter();
 
     useEffect(() => {
         async function fetchUser() {
@@ -202,9 +239,6 @@ export default function Reflection() {
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 }
             });
-            if (res.status == 401) {
-                router.push("login");
-            }
             const json = await res.json();
             setUser(json);
         }
@@ -215,7 +249,6 @@ export default function Reflection() {
         async function fetchPrompt() {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/prompts/today/`);
             const json = await res.json();
-            console.log(json)
             setPrompt(json);
         }
         fetchPrompt();
