@@ -60,7 +60,6 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
   useEffect(() => {
     async function delayedSubmission() {
         if (user.id && sessionStorage.getItem('prompt_id') == prompt.id) {
-            console.log('Running delayed submission if statement.')
             const body = JSON.stringify({
                 user_id: user.id,
                 prompt_id: prompt.id,
@@ -77,9 +76,6 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
         }
     }
     delayedSubmission();
-    console.log('Ran delayed Submission');
-    console.log(user);
-    console.log(prompt);
   }, [prompt, user])
 
   async function handleSubmit(e) {
