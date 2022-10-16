@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -80,6 +81,18 @@ export default function Signup() {
                   value={password}
                   onChange={handlePasswordChange}
                 />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="text-sm">
+                <Link href='/login' className="font-medium text-indigo-600 hover:text-indigo-500">
+                  Login
+                </Link>
+              </div>
+
+              <div className="text-sm">
+                
               </div>
             </div>
 
