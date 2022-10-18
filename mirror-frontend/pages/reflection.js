@@ -40,7 +40,7 @@ function Prompt({ prompt }) {
 
     return (
     <div className="border-b border-gray-200 bg-white px-4 py-5 sm:px-6">
-        <h3 className="text-lg font-medium leading-6 text-gray-900">Today's Prompt</h3>
+        <h3 className="text-lg font-medium leading-6 text-gray-900">Today&apos;'s Prompt</h3>
         <p className="mt-1 text-sm text-gray-500">
             {prompt.prompt_text}
         </p>
@@ -76,7 +76,7 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
         }
     }
     delayedSubmission();
-  }, [prompt, user])
+  }, [prompt, user, updateTodaysReflection])
 
   async function handleSubmit(e) {
     e.preventDefault();
