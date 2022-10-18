@@ -21,7 +21,7 @@ export default function Admin() {
       }
     }
     fetchUser();
-  }, []);
+  }, [router]);
 
   return (
     <div>
