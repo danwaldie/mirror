@@ -51,14 +51,9 @@ export default function Login() {
           <div>
             <div className="h-64 w-96 flex mx-auto justify-center relative">
               <Image
-                // className="mx-auto h-12 w-auto"
                 src={mirrorLogo}
                 alt="Mirror"
                 layout="fill"
-                // objectFit="cover" // change to suit your needs
-                // className="rounded-full" // just an example
-                // width={100}
-                // height={100}
               />
             </div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
