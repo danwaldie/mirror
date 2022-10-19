@@ -1,0 +1,1 @@
+web: gunicorn --pythonpath mirror-backend/main main:app
