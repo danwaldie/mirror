@@ -2,8 +2,8 @@ from datetime import date, datetime
 from time import strptime
 from typing import List
 from fastapi import Depends, APIRouter
-from database import prompts, database
-from models.models import Prompt, PromptIn
+from ..database import prompts, database
+from ..models.models import Prompt, PromptIn
 
 
 router = APIRouter(
