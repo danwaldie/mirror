@@ -2,11 +2,12 @@ from database import database
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import users, notes, prompts, reflections
+from config import settings
 import sentry_sdk
 
 
 sentry_sdk.init(
-    dsn="https://198f74af49e648ad90dfcbae23d8ef24@o4503964181528576.ingest.sentry.io/4503964183035905",
+    dsn=settings.sentry_dsn,
 
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
