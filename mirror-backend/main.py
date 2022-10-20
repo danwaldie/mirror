@@ -25,7 +25,10 @@ app.include_router(reflections.router)
 origins = [
     "http://localhost",
     "http://localhost:8080",
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://mirror-frontend-it68kvtss-danwaldie.vercel.app",
+    "https://vercel.com/danwaldie/mirror-frontend",
+    "https://mirror-opal-six.vercel.app"
 ]
 
 app.add_middleware(
