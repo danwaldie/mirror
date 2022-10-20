@@ -1,23 +1,13 @@
 import os
 import databases
 import sqlalchemy
-from dotenv import load_dotenv
+from .config import settings
 
-load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = settings.database_url
 
 database = databases.Database(DATABASE_URL)
 
 metadata = sqlalchemy.MetaData()
-
-notes = sqlalchemy.Table(
-    "notes",
-    metadata,
-    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("text", sqlalchemy.String),
-    sqlalchemy.Column("completed", sqlalchemy.Boolean),
-)
 
 users = sqlalchemy.Table(
     "users",

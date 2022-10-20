@@ -1,9 +1,9 @@
-import routers.users as users
-import routers.prompts as prompts
+from . import users
+from . import prompts
 from typing import List
 from fastapi import Depends, APIRouter, HTTPException
-from database import reflections, database
-from models.models import Reflection, ReflectionIn
+from ..database import reflections, database
+from ..models.models import Reflection, ReflectionIn
 
 
 router = APIRouter(
