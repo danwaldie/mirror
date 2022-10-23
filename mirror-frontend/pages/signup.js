@@ -31,7 +31,20 @@ export default function Signup() {
       })
     });
     if (res.status == 200) {
-      router.push("login");
+      const formData = new FormData();
+      formData.append('username', email);
+      formData.append('password', password);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/token`, {
+        method: 'POST',
+        body: formData
+      });
+      if (res.status == 200) {
+        const json = await res.json();
+        localStorage.setItem('token', json.access_token);
+        router.push("/");
+      } else {
+        router.push("login");
+      }
     } else {
       alert('Signup failed.')
     }
