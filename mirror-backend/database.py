@@ -5,7 +5,7 @@ from .config import settings
 
 DATABASE_URL = settings.database_url
 
-database = databases.Database(DATABASE_URL)
+database = databases.Database(DATABASE_URL + '?min_size=5&max_size=15')
 
 metadata = sqlalchemy.MetaData()
 

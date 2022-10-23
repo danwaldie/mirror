@@ -29,15 +29,6 @@ export default function Login() {
     if (res.status == 200) {
       const json = await res.json();
       localStorage.setItem('token', json.access_token);
-      // const current_date = new Date();
-      // const date_submitted = sessionStorage.getItem('date_submitted');
-      // if (date_submitted && date_submitted.startsWith(current_date.toISOString().slice(0,10))) {
-      //   const body = {
-
-      //   }
-      // } else {
-      //   sessionStorage.clear();
-      // }
       router.push("reflection");
     } else {
       alert('Login failed.')
