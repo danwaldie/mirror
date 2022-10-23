@@ -290,7 +290,7 @@ export default function Reflection() {
                     <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-white" />
                     <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-white" />
                 </div>
-                <div className='space-y-8 bg-white/60 py-14 px-10 m-16 min-w-min shadow-xl rounded-lg shadow-blue-900/5 backdrop-blur'>
+                <div className='space-y-8 bg-white/60 py-14 px-4 sm:px-10 m-4 sm:m-16 min-w-min shadow-xl rounded-lg shadow-blue-900/5 backdrop-blur'>
                     <Prompt prompt={prompt} />
                     <div>
                         {todaysReflection.reflection_text ? (
