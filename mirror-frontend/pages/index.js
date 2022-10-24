@@ -66,7 +66,8 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
                     user_id: user.id,
                     prompt_id: prompt.id,
                     reflection_text: sessionStorage.getItem('reflection_text'),
-                    date_submitted: sessionStorage.getItem('date_submitted')
+                    date_submitted: sessionStorage.getItem('date_submitted'),
+                    mood: sessionStorage.getItem('mood')
                 })
                 const res = await submitReflection(body);
                 if (res.status == 200) {
@@ -88,7 +89,8 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
                 user_id: user.id,
                 prompt_id: prompt.id,
                 reflection_text: reflection,
-                date_submitted: current_date.toISOString()
+                date_submitted: current_date.toISOString(),
+                mood: selected.value
             });
             const res = await submitReflection(body);
             if (res.status == 200) {
@@ -100,6 +102,7 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
             sessionStorage.setItem('prompt_id', prompt.id);
             sessionStorage.setItem('reflection_text', reflection);
             sessionStorage.setItem('date_submitted', current_date.toISOString());
+            sessionStorage.setItem('mood', selected.value);
             router.push('login');
         }
     }
