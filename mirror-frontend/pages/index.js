@@ -117,7 +117,7 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
                                 rows={3}
                                 name="reflection"
                                 id="reflection"
-                                className="block w-full resize-none border-0 border-b border-transparent p-0 pb-2 focus:border-indigo-600 focus:ring-0 sm:text-sm"
+                                className="block w-full resize-none border-0 border-b border-transparent p-0 pb-2 focus:border-indigo-600 text-gray-900 focus:ring-0 sm:text-sm"
                                 placeholder="Write your reflection..."
                                 defaultValue={''}
                                 onChange={handleReflectionChange}
@@ -185,7 +185,7 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
                                                                                 aria-hidden="true"
                                                                             />
                                                                         </div>
-                                                                        <span className="ml-3 block truncate font-medium">{mood.name}</span>
+                                                                        <span className="ml-3 block truncate font-medium text-gray-900">{mood.name}</span>
                                                                     </div>
                                                                 </Listbox.Option>
                                                             ))}
