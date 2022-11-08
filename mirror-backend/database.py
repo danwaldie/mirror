@@ -33,7 +33,8 @@ reflections = sqlalchemy.Table(
     sqlalchemy.Column("user_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"), nullable=False, index=True),
     sqlalchemy.Column("prompt_id", sqlalchemy.Integer, sqlalchemy.ForeignKey("prompts.id"), nullable=False, index=True),
     sqlalchemy.Column("reflection_text", sqlalchemy.String),
-    sqlalchemy.Column("date_submitted", sqlalchemy.DateTime(timezone=True))
+    sqlalchemy.Column("date_submitted", sqlalchemy.DateTime(timezone=True)),
+    sqlalchemy.Column("mood", sqlalchemy.String)
 )
 
 engine = sqlalchemy.create_engine(

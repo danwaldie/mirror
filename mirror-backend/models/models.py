@@ -16,6 +16,7 @@ class ReflectionIn(BaseModel):
     prompt_id: int
     reflection_text: str
     date_submitted: datetime
+    mood: str
 
 
 class Reflection(BaseModel):
@@ -24,6 +25,7 @@ class Reflection(BaseModel):
     prompt_id: int
     reflection_text: str
     date_submitted: datetime
+    mood: str | None
 
 
 class UserBase(BaseModel):

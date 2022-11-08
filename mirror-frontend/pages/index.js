@@ -6,7 +6,7 @@ import {
     FaceFrownIcon,
     FaceSmileIcon as FaceSmileIconMini,
     FireIcon,
-    HandThumbUpIcon,
+    HandThumbDownIcon,
     HeartIcon,
     XMarkIcon,
 } from '@heroicons/react/20/solid'
@@ -19,7 +19,7 @@ const moods = [
     { name: 'Loved', value: 'loved', icon: HeartIcon, iconColor: 'text-white', bgColor: 'bg-pink-400' },
     { name: 'Happy', value: 'happy', icon: FaceSmileIconMini, iconColor: 'text-white', bgColor: 'bg-green-400' },
     { name: 'Sad', value: 'sad', icon: FaceFrownIcon, iconColor: 'text-white', bgColor: 'bg-yellow-400' },
-    { name: 'Thumbsy', value: 'thumbsy', icon: HandThumbUpIcon, iconColor: 'text-white', bgColor: 'bg-blue-500' },
+    { name: 'Angry', value: 'angry', icon: HandThumbDownIcon, iconColor: 'text-white', bgColor: 'bg-orange-500' },
     { name: 'I feel nothing', value: null, icon: XMarkIcon, iconColor: 'text-gray-400', bgColor: 'bg-transparent' },
 ]
 
@@ -66,7 +66,8 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
                     user_id: user.id,
                     prompt_id: prompt.id,
                     reflection_text: sessionStorage.getItem('reflection_text'),
-                    date_submitted: sessionStorage.getItem('date_submitted')
+                    date_submitted: sessionStorage.getItem('date_submitted'),
+                    mood: sessionStorage.getItem('mood')
                 })
                 const res = await submitReflection(body);
                 if (res.status == 200) {
@@ -88,7 +89,8 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
                 user_id: user.id,
                 prompt_id: prompt.id,
                 reflection_text: reflection,
-                date_submitted: current_date.toISOString()
+                date_submitted: current_date.toISOString(),
+                mood: selected.value
             });
             const res = await submitReflection(body);
             if (res.status == 200) {
@@ -100,6 +102,7 @@ function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
             sessionStorage.setItem('prompt_id', prompt.id);
             sessionStorage.setItem('reflection_text', reflection);
             sessionStorage.setItem('date_submitted', current_date.toISOString());
+            sessionStorage.setItem('mood', selected.value);
             router.push('login');
         }
     }

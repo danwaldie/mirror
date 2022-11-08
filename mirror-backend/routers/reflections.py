@@ -59,7 +59,8 @@ async def create_reflection(reflection: ReflectionIn):
         user_id=reflection.user_id, 
         prompt_id=reflection.prompt_id, 
         reflection_text=reflection.reflection_text, 
-        date_submitted=reflection.date_submitted
+        date_submitted=reflection.date_submitted,
+        mood=reflection.mood
     )
     last_record_id = await database.execute(query)
     return {**reflection.dict(), "id": last_record_id}
