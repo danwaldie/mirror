@@ -26,6 +26,7 @@ origins = [
     "http://localhost",
     "http://localhost:8080",
     "http://localhost:3000",
+    "https://mirror.ideafuel.io",
     "https://mirror-opal-six.vercel.app"
 ]
 
