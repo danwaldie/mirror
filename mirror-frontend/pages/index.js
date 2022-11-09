@@ -6,10 +6,10 @@ import {
     FaceFrownIcon,
     FaceSmileIcon as FaceSmileIconMini,
     FireIcon,
+    LightBulbIcon,
     HandThumbDownIcon,
     HeartIcon,
     XMarkIcon,
-    LightBulbIcon,
 } from '@heroicons/react/20/solid'
 import { useRouter } from 'next/router';
 import Image from 'next/future/image';
@@ -53,7 +53,7 @@ function Prompt({ prompt }) {
 }
 
 function ReflectionEntry({ prompt, user, updateTodaysReflection }) {
-    const [selected, setSelected] = useState(moods[5])
+    const [selected, setSelected] = useState(moods[6])
     const [reflection, setReflection] = useState('');
     const router = useRouter();
 
